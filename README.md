@@ -2,6 +2,9 @@
 
 ### A tool to resize Background images for use with [OpenCanopyGenerator](https://github.com/chris1111/OpenCanopy-Generator)
 
+- Create by: chris1111
+- Credit: Apple Image Processing System (sips)
+
 
 Download ➤ [Background-Resizer](https://github.com/chris1111/Background-Resizer/raw/main/Background-Resizer.zip)
 
