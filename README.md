@@ -16,7 +16,7 @@ Download ➤ [Background-Resizer](https://github.com/chris1111/Background-Resize
 
 ![Screen Shot ](https://user-images.githubusercontent.com/6248794/126043110-6423bc0c-0cf5-44f2-a4f0-fd1762e04df9.png)
 
-### View Smal Video⬇︎
+### View Smal Video ⬇︎
 
 https://user-images.githubusercontent.com/6248794/126043271-f0f3a76b-32af-4bb0-9544-e14405c7e794.mov
 
