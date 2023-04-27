@@ -26,7 +26,6 @@ do
     sips -z 2400 3200 "$var" --out "$basename-3200x2400.png" &> /dev/null
     sips -z 1800 3200 "$var" --out "$basename-3200x1800.png" &> /dev/null
     sips -z 2160 2880 "$var" --out "$basename-2880x2160.png" &> /dev/null
-    sips -z 1800 2880 "$var" --out "$basename-1880x2880.png" &> /dev/null
     sips -z 1536 2732 "$var" --out "$basename-2732x1536.png" &> /dev/null
     sips -z 1800 2880 "$var" --out "$basename-2880x1800.png" &> /dev/null
     sips -z 1536 2048 "$var" --out "$basename-2048x1536.png" &> /dev/null
