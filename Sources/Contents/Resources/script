@@ -1,6 +1,6 @@
 #!/bin/sh
 # Background-Resizer
-# Copyright (c) 2021, chris1111. All Right Reserved
+# Copyright (c) 2021, 2023 chris1111. All Right Reserved
 # Credit: Apple Image Processing System (sips)
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,7 @@ do
     echo "Resizing $var"
     basename=$(echo "$var" | cut -f 1 -d '.')
     sips -z 2160 3840 "$var" --out "$basename-3840x2160.png" &> /dev/null
+    sips -z 2880 7680 "$var" --out "$basename-7680x2880.png" &> /dev/null
     sips -z 2880 5120 "$var" --out "$basename-5120x2880.png" &> /dev/null
     sips -z 1600 2560 "$var" --out "$basename-2560x1600.png" &> /dev/null
     sips -z 2400 3840 "$var" --out "$basename-3840x2400.png" &> /dev/null
@@ -45,6 +46,6 @@ else
 Drop your Background images to resize them, only PNG and JPG images are accept the Background must be in 1920x1080, an unlimited number of images can be dropped.
 The images will be resize to:
 
-3840x2160.png-5120x2880.png-2560x1600.png-3840x2400.png-3360x2100.png-3200x2400.png-3200x1800.png-2880x2160.png-2880x1800.png-2732x1536.png-2048x1536.png 
+3840x2160.png-7680x2880-5120x2880.png-2560x1600.png-3840x2400.png-3360x2100.png-3200x2400.png-3200x1800.png-2880x2160.png-2880x1800.png-2732x1536.png-2048x1536.png 
 🔍 ➤ in the same directory as your original image."
 fi
