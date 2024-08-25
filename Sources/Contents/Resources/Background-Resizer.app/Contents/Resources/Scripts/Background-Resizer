@@ -1,0 +1,40 @@
+#!/bin/sh
+# Background-Resizer
+# Copyright (c) 2021, 2024 chris1111. All Right Reserved
+# Credit: Apple Image Processing System (sips)
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+# Vars
+for var in "$@"
+do  
+    
+    IFS='.' read -ra "ADDR" <<< "$1"
+    echo "File name is $ADDR"
+    Sleep 3
+    BACK_DIR="${ADDR[0]}".resize
+    echo "Resizing $var"
+
+    mkdir "$BACK_DIR"
+    Sleep 1
+    sips -z 2160 3840 "$1" --out "$BACK_DIR"/Background-3840x2160.png
+    sips -z 2880 7680 "$1" --out "$BACK_DIR"/Background-7680x2880.png
+    sips -z 2880 5120 "$1" --out "$BACK_DIR"/Background-5120x2880.png
+    sips -z 1600 2560 "$1" --out "$BACK_DIR"/Background-2560x1600.png
+    sips -z 2400 3840 "$1" --out "$BACK_DIR"/Background-3840x2400.png
+    sips -z 2100 3360 "$1" --out "$BACK_DIR"/Background-3360x2100.png
+    sips -z 2400 3200 "$1" --out "$BACK_DIR"/Background-3200x2400.png
+    sips -z 1800 3200 "$1" --out "$BACK_DIR"/Background-3200x1800.png
+    sips -z 2160 2880 "$1" --out "$BACK_DIR"/Background-2880x2160.png
+    sips -z 1536 2732 "$1" --out "$BACK_DIR"/Background-2732x1536.png
+    sips -z 1800 2880 "$1" --out "$BACK_DIR"/Background-2880x1800.png
+    sips -z 1536 2048 "$1" --out "$BACK_DIR"/Background-2048x1536.png
+done
+
