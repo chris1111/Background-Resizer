@@ -7,7 +7,7 @@ Update 25 Aug 2024 Change Applications bundle
 - Created from [Script Debugger](https://latenightsw.com/)
 - Credit: Apple Image Processing System (sips)
 
-- Only PNG images are accept the Background must be in 1920x1080, an unlimited number of images can be dropped
+- Only PNG images are accept the Background must be in 1920x1080, only one image can be dropped
 
 ### The images will be resize to:
 
