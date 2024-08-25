@@ -14,8 +14,7 @@ Update 25 Aug 2024 Change Applications bundle
 - 3840x2160.png-7680x2880.png-5120x2880.png-2560x1600.png-3840x2400.png-3360x2100.png-3200x2400.png-3200x1800.png-2880x2160.png-2880x1800.png-2732x1536.png-2880x1800.png-2048x1536.png 
 - 🔍 ➤ in the same directory as your original image in folder with the same name Ex: Background.resize.
 
-Download ➤ [Install Background-Resizer](https://github.com/chris1111/Background-Resizer/raw/main/Install Background-Resizer.zip.zip)
-
+Download ➤ [Install Background-Resizer](https://github.com/chris1111/Background-Resizer/raw/main/Install%20Background-Resizer.zip)
 
 ### ⬇︎ View Video⬇︎
 
