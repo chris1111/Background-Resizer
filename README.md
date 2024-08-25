@@ -17,6 +17,6 @@ Update 25 Aug 2024 Change Applications bundle
 Download ➤ [Install Background-Resizer](https://github.com/chris1111/Background-Resizer/raw/main/Install%20Background-Resizer.zip)
 
 ### View Video Install Background-Resizer ⬇︎
-[![Modular Image Creation](https://github.com/user-attachments/assets/68f65560-03ae-4dfe-908f-554e30e2906b)]()
+[![Modular Image Creation](https://github.com/user-attachments/assets/68f65560-03ae-4dfe-908f-554e30e2906b)](https://youtu.be/FHRLZtXXIFk)
 
 
