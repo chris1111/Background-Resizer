@@ -3,6 +3,8 @@ Update 25 Aug 2024 Change Applications bundle
 
 ### A tool to resize Background images for use with [OpenCanopyGenerator](https://github.com/chris1111/OpenCanopy-Generator)
 
+![Screenshot 2024-08-25 at 2 24 32 PM](https://github.com/user-attachments/assets/2d8bf494-f4e8-4a7a-955d-fcbdbe16d952)
+
 - Create by: chris1111
 - Created from [Script Debugger](https://latenightsw.com/)
 - Credit: Apple Image Processing System (sips)
