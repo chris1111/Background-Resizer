@@ -1,6 +1,8 @@
 # Background-Resizer
 Update 25 Aug 2024 Change Applications bundle
 
+[![pages-build-deployment](https://github.com/chris1111/Background-Resizer/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/chris1111/Background-Resizer/actions/workflows/pages/pages-build-deployment)
+
 ### A tool to resize Background images for use with [OpenCanopyGenerator](https://github.com/chris1111/OpenCanopy-Generator)
 
 ![Screenshot 2024-08-25 at 2 24 32 PM](https://github.com/user-attachments/assets/2d8bf494-f4e8-4a7a-955d-fcbdbe16d952)
