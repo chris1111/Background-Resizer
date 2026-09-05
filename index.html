@@ -46,7 +46,7 @@
   .icon-btn{margin-left:auto;width:32px;height:32px;border-radius:50%;flex:none;border:1px solid var(--border);
     background:transparent;color:var(--muted);cursor:pointer;font-size:1rem;transition:.15s}
   .icon-btn:hover{color:#f87171;border-color:#f87171}
-  .controls{margin:16px 0}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
   .controls label{display:flex;flex-direction:column;gap:6px;font-size:.72rem;color:var(--muted);
     text-transform:uppercase;letter-spacing:.07em;font-weight:600}
   input[type=text]{
@@ -54,6 +54,17 @@
     color:var(--text);padding:10px 12px;font:inherit;font-size:.88rem;outline:none;width:100%;
   }
   input[type=text]:focus{border-color:var(--a1)}
+  .compress-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    background:rgba(139,92,246,.15);border:1px solid var(--a1);color:#c4b5fd;
+    border-radius:10px;padding:10px 12px;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer;transition:.15s}
+  .compress-btn:hover:not(:disabled){background:rgba(139,92,246,.28)}
+  .compress-btn:disabled{opacity:.6;cursor:default}
+  .compress-btn.done{border-color:#34d399;color:#6ee7b7;background:rgba(52,211,153,.12)}
+  .mini-progress{display:flex;flex-direction:column;gap:4px;margin-top:2px}
+  .mini-bar{height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  #cFill{height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .2s;border-radius:99px}
+  @media (max-width:560px){.controls{grid-template-columns:1fr}}
   .note{margin:-8px 0 14px;font-size:.75rem;color:var(--muted)}
   .sizes-head{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 8px}
   .sizes-head .small:first-child{color:var(--muted);letter-spacing:.07em;font-weight:600}
@@ -142,9 +153,18 @@
     <label>Filename prefix
       <input type="text" id="prefix" value="Background" spellcheck="false">
     </label>
+    <label>You can compress image before resizing
+      <button type="button" id="compressBtn" class="compress-btn"
+              title="Lossless squeeze of the source image, before any resizing">
+        Compress image
+      </button>
+      <div id="cWrap" class="mini-progress hidden">
+        <div class="mini-bar"><div id="cFill"></div></div>
+        <span id="cText" class="muted small"></span>
+      </div>
+    </label>
   </div>
-  <p class="note">Each output is stretched to the exact pixel dimensions — identical to <code>sips -z.</p>
-
+  
   <div class="sizes-head">
     <span class="small">OUTPUT SIZES</span>
     <span><button class="link" id="allBtn">All</button> · <button class="link" id="noneBtn">None</button></span>
@@ -194,7 +214,10 @@ const SIZES = [
 ];
 
 const $ = id => document.getElementById(id);
-let img = null, objectUrl = null, blobs = [];
+const TE = new TextEncoder();
+const SIG = new Uint8Array([0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A]);
+let img = null, objectUrl = null, srcBlob = null, blobs = [];
+let pureSrc = null, warnedVerify = false, lastFallbackReason = null;
 
 /* ---------- build size chips ---------- */
 SIZES.forEach(([w,h,tag])=>{
@@ -219,11 +242,12 @@ function toast(msg, ok = true){
   t.classList.toggle("error", !ok);
   t.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove("show"), 3400);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 3800);
 }
 const prefixVal = () => ($("prefix").value.trim() || "Background");
 const getSelected = () =>
   [...document.querySelectorAll(".chip input:checked")].map(cb => [+cb.dataset.w, +cb.dataset.h]);
+const yieldUI = () => new Promise(r => setTimeout(r, 0));
 
 function downloadBlob(blob, name){
   const a = document.createElement("a");
@@ -233,78 +257,7 @@ function downloadBlob(blob, name){
   setTimeout(()=>URL.revokeObjectURL(a.href), 8000);
 }
 
-/* ---------- file loading ---------- */
-function handleFile(file){
-  if (!file) return;
-  if (!(file.type === "image/png" || /\.png$/i.test(file.name)))
-    return toast("PNG files only 🙂", false);
-  const url = URL.createObjectURL(file);
-  const im = new Image();
-  im.onload = () => {
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-    objectUrl = url; img = im;
-    $("preview").src = url;
-    $("fileName").textContent = file.name;
-    $("fileInfo").textContent = `${im.naturalWidth} × ${im.naturalHeight} px · ${formatBytes(file.size)}`;
-    $("dropzone").classList.add("hidden");
-    $("fileCard").classList.remove("hidden");
-    $("goBtn").disabled = false;
-    $("results").classList.add("hidden"); $("results").innerHTML = "";
-    $("exportRow").classList.add("hidden");
-    $("progressWrap").classList.add("hidden");
-  };
-  im.onerror = () => { URL.revokeObjectURL(url); toast("Could not read that image", false); };
-  im.src = url;
-}
-function resetAll(){
-  if (objectUrl) URL.revokeObjectURL(objectUrl);
-  objectUrl = null; img = null;
-  $("preview").removeAttribute("src");
-  $("fileCard").classList.add("hidden");
-  $("dropzone").classList.remove("hidden");
-  $("goBtn").disabled = true;
-  $("exportRow").classList.add("hidden");
-  $("results").classList.add("hidden"); $("results").innerHTML = "";
-  $("progressWrap").classList.add("hidden");
-}
-
-/* ---------- resizing (canvas) — exact stretch, sips -z behaviour ---------- */
-function renderSize(W, H){
-  const c = document.createElement("canvas");
-  c.width = W; c.height = H;
-  const ctx = c.getContext("2d");
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, W, H);
-  return new Promise(res => c.toBlob(res, "image/png"));
-}
-
-async function resizeAll(selected){
-  blobs = [];
-  const results = $("results"), pWrap = $("progressWrap");
-  results.innerHTML = ""; results.classList.remove("hidden"); pWrap.classList.remove("hidden");
-  const rows = selected.map(([w,h])=>{
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${prefixVal()}-${w}x${h}.png</span><span class="muted">queued…</span>`;
-    results.appendChild(li);
-    return li;
-  });
-  for (let i = 0; i < selected.length; i++){
-    const [w,h] = selected[i];
-    $("progressText").textContent = `Resizing ${w}×${h} (${i+1}/${selected.length})…`;
-    $("barFill").style.width = (i / selected.length * 100) + "%";
-    await new Promise(r => setTimeout(r, 16));            // keep UI responsive
-    const blob = await renderSize(w, h);
-    if (!blob) throw new Error("Canvas failed on " + w + "×" + h);
-    blobs.push({ name: `${prefixVal()}-${w}x${h}.png`, blob });
-    rows[i].lastElementChild.textContent = formatBytes(blob.size) + " ✓";
-    rows[i].lastElementChild.classList.add("ok");
-  }
-  $("barFill").style.width = "100%";
-  $("progressText").textContent = `Done — ${selected.length} images ready.`;
-}
-
-/* ---------- export: ZIP only (pure JS, no libraries) ---------- */
+/* ---------- CRC32 (PNG chunk writer + ZIP packer) ---------- */
 const crcTable = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++){
@@ -319,6 +272,629 @@ function crc32(u8){
   for (let i = 0; i < u8.length; i++) c = crcTable[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
   return (c ^ 0xFFFFFFFF) >>> 0;
 }
+
+/* ---------- file loading ---------- */
+function resetCompressUI(){
+  const cb = $("compressBtn");
+  cb.disabled = false;
+  cb.classList.remove("done");
+  cb.textContent = "Compress image";
+  $("cWrap").classList.add("hidden");
+  $("cFill").style.width = "0%";
+}
+function handleFile(file){
+  if (!file) return;
+  if (!(file.type === "image/png" || /\.png$/i.test(file.name)))
+    return toast("PNG files only 🙂", false);
+  const url = URL.createObjectURL(file);
+  const im = new Image();
+  im.onload = () => {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = url; img = im; srcBlob = file;
+    pureSrc = null; lastFallbackReason = null;
+    $("preview").src = url;
+    $("fileName").textContent = file.name;
+    $("fileInfo").textContent = `${im.naturalWidth} × ${im.naturalHeight} px · ${formatBytes(file.size)}`;
+    $("dropzone").classList.add("hidden");
+    $("fileCard").classList.remove("hidden");
+    $("goBtn").disabled = false;
+    resetCompressUI();
+    $("results").classList.add("hidden"); $("results").innerHTML = "";
+    $("exportRow").classList.add("hidden");
+    $("progressWrap").classList.add("hidden");
+  };
+  im.onerror = () => { URL.revokeObjectURL(url); toast("Could not read that image", false); };
+  im.src = url;
+}
+function resetAll(){
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  objectUrl = null; img = null; srcBlob = null;
+  pureSrc = null; lastFallbackReason = null;
+  $("preview").removeAttribute("src");
+  $("fileCard").classList.add("hidden");
+  $("dropzone").classList.remove("hidden");
+  $("goBtn").disabled = true;
+  resetCompressUI();
+  $("exportRow").classList.add("hidden");
+  $("results").classList.add("hidden"); $("results").innerHTML = "";
+  $("progressWrap").classList.add("hidden");
+}
+
+/* =====================================================================
+   PURE-JS PNG TOOLKIT — the browser never touches pixels anymore.
+   decode → resample → re-encode, with ALL original chunks preserved:
+   ICC profile (iCCP), gamma, sRGB, EXIF, text… and 16-bit depth.
+   This is what makes the output match sips / Preview.
+   ===================================================================== */
+async function streamToU8(stream){
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+const inflate  = u8 => streamToU8(new Blob([u8]).stream().pipeThrough(new DecompressionStream("deflate")));
+const deflateZ = u8 => streamToU8(new Blob([u8]).stream().pipeThrough(new CompressionStream("deflate")));
+function concatBytes(list){
+  let n = 0; for (const b of list) n += b.length;
+  const out = new Uint8Array(n); let o = 0;
+  for (const b of list){ out.set(b, o); o += b.length; }
+  return out;
+}
+function parsePng(u8){
+  if (u8.length < 57) return null;
+  for (let i = 0; i < 8; i++) if (u8[i] !== SIG[i]) return null;
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const chunks = [];
+  let off = 8;
+  while (off + 12 <= u8.length){
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(u8[off+4], u8[off+5], u8[off+6], u8[off+7]);
+    if (off + 8 + len + 4 > u8.length) return null;
+    chunks.push({ type, data: u8.subarray(off + 8, off + 8 + len) });
+    off += 12 + len;
+  }
+  return chunks;
+}
+function pngChunk(type, data){
+  const out = new Uint8Array(12 + data.length);
+  const dv = new DataView(out.buffer);
+  dv.setUint32(0, data.length);
+  out.set(TE.encode(type), 4);
+  out.set(data, 8);
+  dv.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)));
+  return out;
+}
+function unfilterRows(filtered, w, h, bpp){
+  const stride = w * bpp, fs = stride + 1;
+  const raw = new Uint8Array(stride * h);
+  for (let y = 0; y < h; y++){
+    const f = filtered[y * fs];
+    const s = y * fs + 1, dst = y * stride, prev = dst - stride;
+    for (let j = 0; j < stride; j++){
+      const x = filtered[s + j];
+      const a = j >= bpp ? raw[dst + j - bpp] : 0;
+      const b = y ? raw[prev + j] : 0;
+      const c = (y && j >= bpp) ? raw[prev + j - bpp] : 0;
+      let v;
+      if (f === 0) v = x;
+      else if (f === 1) v = x + a;
+      else if (f === 2) v = x + b;
+      else if (f === 3) v = x + ((a + b) >> 1);
+      else {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+      }
+      raw[dst + j] = v;
+    }
+  }
+  return raw;
+}
+async function refilterRowsAsync(raw, w, h, bpp, onFrac){
+  const stride = w * bpp;
+  const out = new Uint8Array((stride + 1) * h);
+  const STEP = Math.max(bpp * 4, 16);
+  for (let y = 0; y < h; y++){
+    const dst = y * stride, prev = dst - stride;
+    let bestF = 0, bestSum = Infinity;
+    for (let f = 0; f <= 4; f++){
+      let sum = 0;
+      for (let j = 0; j < stride; j += STEP){
+        const x = raw[dst + j];
+        const a = j >= bpp ? raw[dst + j - bpp] : 0;
+        const b = y ? raw[prev + j] : 0;
+        const c = (y && j >= bpp) ? raw[prev + j - bpp] : 0;
+        let v;
+        if (f === 0) v = x;
+        else if (f === 1) v = x - a;
+        else if (f === 2) v = x - b;
+        else if (f === 3) v = x - ((a + b) >> 1);
+        else {
+          const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+          v = x - (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+        }
+        const sg = (v << 24) >> 24;
+        sum += sg < 0 ? -sg : sg;
+      }
+      if (sum < bestSum){ bestSum = sum; bestF = f; }
+    }
+    const os = y * (stride + 1);
+    out[os] = bestF;
+    for (let j = 0; j < stride; j++){
+      const x = raw[dst + j];
+      const a = j >= bpp ? raw[dst + j - bpp] : 0;
+      const b = y ? raw[prev + j] : 0;
+      const c = (y && j >= bpp) ? raw[prev + j - bpp] : 0;
+      let v;
+      if (bestF === 0) v = x;
+      else if (bestF === 1) v = x - a;
+      else if (bestF === 2) v = x - b;
+      else if (bestF === 3) v = x - ((a + b) >> 1);
+      else {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        v = x - (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+      }
+      out[os + 1 + j] = v;
+    }
+    if ((y & 127) === 127){
+      if (onFrac) onFrac(y / h);
+      await yieldUI();
+    }
+  }
+  return out;
+}
+
+/* decode the source PNG into raw samples + its ancillary chunks */
+async function decodePngPure(u8){
+  const chunks = parsePng(u8);
+  if (!chunks) return { ok:false, reason:"not a PNG stream" };
+  const ihdr = chunks.find(c => c.type === "IHDR");
+  if (!ihdr || ihdr.data.length < 13) return { ok:false, reason:"bad header" };
+  const idv = new DataView(ihdr.data.buffer, ihdr.data.byteOffset, 13);
+  const w = idv.getUint32(0), h = idv.getUint32(4);
+  const bitDepth = ihdr.data[8], colorType = ihdr.data[9], interlace = ihdr.data[12];
+  if (w === 0 || h === 0) return { ok:false, reason:"empty image" };
+  if (interlace !== 0) return { ok:false, reason:"interlaced PNG" };
+  if (bitDepth !== 8 && bitDepth !== 16) return { ok:false, reason:bitDepth + "-bit depth" };
+  const idats = chunks.filter(c => c.type === "IDAT");
+  if (!idats.length) return { ok:false, reason:"no image data" };
+
+  const bpp0 = colorType === 3 ? 1 : ({0:1,2:3,4:2,6:4}[colorType] || 0) * (bitDepth >> 3);
+  if (!bpp0) return { ok:false, reason:"color type " + colorType };
+  let raw;
+  try { raw = await inflate(concatBytes(idats.map(c => c.data))); }
+  catch { return { ok:false, reason:"corrupt data" }; }
+  if (raw.length !== h * (w * bpp0 + 1)) return { ok:false, reason:"unexpected data size" };
+  const pix = unfilterRows(raw, w, h, bpp0);
+
+  let ch, outColorType, outBitDepth = bitDepth, samples;
+  if (colorType === 3){
+    const plte = chunks.find(c => c.type === "PLTE");
+    if (!plte) return { ok:false, reason:"palette missing" };
+    const trns = chunks.find(c => c.type === "tRNS");
+    const pn = plte.data.length / 3;
+    const hasT = !!(trns && trns.data.length);
+    ch = hasT ? 4 : 3;
+    outColorType = hasT ? 6 : 2;
+    outBitDepth = 8;
+    samples = new Uint16Array(w * h * ch);
+    for (let i = 0, s = 0; i < w * h; i++){
+      const idx = pix[i];
+      if (idx >= pn) return { ok:false, reason:"bad palette index" };
+      samples[s++] = plte.data[idx * 3];
+      samples[s++] = plte.data[idx * 3 + 1];
+      samples[s++] = plte.data[idx * 3 + 2];
+      if (hasT) samples[s++] = idx < trns.data.length ? trns.data[idx] : 255;
+    }
+  } else {
+    ch = { 0:1, 2:3, 4:2, 6:4 }[colorType];
+    outColorType = colorType;
+    const n = w * h * ch;
+    samples = new Uint16Array(n);
+    if (bitDepth === 8){
+      for (let i = 0; i < n; i++) samples[i] = pix[i];
+    } else {
+      for (let i = 0; i < n; i++) samples[i] = (pix[2*i] << 8) | pix[2*i+1];
+    }
+  }
+
+  /* keep everything except structural chunks — ICC/gamma/EXIF/etc. ride along */
+  const skip = new Set(["IHDR","IDAT","IEND","PLTE","hIST"]);
+  if (colorType === 3 || colorType === 4 || colorType === 6) skip.add("tRNS");
+  if (colorType === 3) skip.add("bKGD");
+  const ancillary = chunks.filter(c => !skip.has(c.type)).map(c => ({ type:c.type, data:c.data }));
+
+  return { ok:true, w, h, ch, outColorType, outBitDepth, samples, ancillary };
+}
+
+/* ---------- Lanczos3 on raw samples (any channel count, 8/16-bit) ---------- */
+function lanczos(x){
+  if (x === 0) return 1;
+  if (x <= -3 || x >= 3) return 0;
+  const px = Math.PI * x, pxa = px / 3;
+  return 3 * Math.sin(px) * Math.sin(pxa) / (px * px);
+}
+function buildWeights(srcLen, dstLen){
+  const ratio = dstLen / srcLen;
+  const scale = ratio < 1 ? 1 / ratio : 1;
+  const support = 3 * scale;
+  const T = Math.ceil(support * 2) + 2;
+  const starts = new Int32Array(dstLen);
+  const weights = new Float32Array(dstLen * T);
+  for (let i = 0; i < dstLen; i++){
+    const center = (i + 0.5) / ratio - 0.5;
+    const start = Math.ceil(center - support);
+    let wsum = 0;
+    for (let t = 0; t < T; t++){
+      const w = lanczos((start + t - center) / scale);
+      weights[i * T + t] = w; wsum += w;
+    }
+    for (let t = 0; t < T; t++) weights[i * T + t] /= wsum;
+    starts[i] = start;
+  }
+  return { starts, weights, T };
+}
+function clamp(v, maxVal){ return v < 0 ? 0 : v > maxVal ? maxVal : v; }
+async function resampleGeneric(src, sw, sh, ch, dw, dh, maxVal, tick){
+  const hw = buildWeights(sw, dw), vw = buildWeights(sh, dh);
+  const hasAlpha = (ch === 2 || ch === 4);
+  const mid = new Uint16Array(dw * sh * ch);
+  const acc = new Float64Array(dw * ch);
+  for (let y = 0; y < sh; y++){
+    if (tick && (y & 63) === 0){ tick("Lanczos pass 1/2 · horizontal"); await yieldUI(); }
+    acc.fill(0);
+    const row = y * sw * ch;
+    for (let t = 0; t < hw.T; t++){
+      for (let x = 0; x < dw; x++){
+        const wt = hw.weights[x * hw.T + t];
+        if (wt === 0) continue;
+        let sx = hw.starts[x] + t;
+        sx = sx < 0 ? 0 : sx >= sw ? sw - 1 : sx;
+        const p = row + sx * ch, q = x * ch;
+        for (let c = 0; c < ch; c++) acc[q + c] += src[p + c] * wt;
+      }
+    }
+    const mrow = y * dw * ch;
+    if (!hasAlpha){
+      for (let q = 0; q < dw * ch; q++) mid[mrow + q] = clamp(acc[q], maxVal);
+    } else {
+      const A = ch - 1;
+      for (let x = 0; x < dw; x++){
+        const q = mrow + x * ch, a = x * ch;
+        const al = clamp(acc[a + A], maxVal);
+        mid[q + A] = al;
+        const f = al / maxVal;
+        for (let c = 0; c < A; c++) mid[q + c] = clamp(acc[a + c] * f, maxVal);
+      }
+    }
+  }
+  const out = new Uint16Array(dw * dh * ch);
+  for (let y = 0; y < dh; y++){
+    if (tick && (y & 63) === 0){ tick("Lanczos pass 2/2 · vertical"); await yieldUI(); }
+    acc.fill(0);
+    for (let t = 0; t < vw.T; t++){
+      const wt = vw.weights[y * vw.T + t];
+      if (wt === 0) continue;
+      let sy = vw.starts[y] + t;
+      sy = sy < 0 ? 0 : sy >= sh ? sh - 1 : sy;
+      const row = sy * dw * ch;
+      for (let q = 0; q < dw * ch; q++) acc[q] += mid[row + q] * wt;
+    }
+    const orow = y * dw * ch;
+    if (!hasAlpha){
+      for (let q = 0; q < dw * ch; q++) out[orow + q] = clamp(acc[q], maxVal);
+    } else {
+      const A = ch - 1;
+      for (let x = 0; x < dw; x++){
+        const q = orow + x * ch, a = x * ch;
+        const al = clamp(acc[a + A], maxVal);
+        if (al <= 0.5){
+          for (let c = 0; c < ch; c++) out[q + c] = 0;
+        } else {
+          out[q + A] = al;
+          const f = maxVal / al;
+          for (let c = 0; c < A; c++) out[q + c] = clamp(acc[a + c] * f, maxVal);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/* re-encode samples as a PNG, re-attaching every original ancillary chunk */
+async function encodeResized(samples, w, h, ch, bitDepth, colorType, ancillary, tick){
+  const n = w * h * ch;
+  let bytes;
+  if (bitDepth === 8){
+    bytes = new Uint8Array(n);
+    for (let i = 0; i < n; i++) bytes[i] = samples[i];
+  } else {
+    bytes = new Uint8Array(n * 2);
+    for (let i = 0; i < n; i++){ const v = samples[i]; bytes[2*i] = v >> 8; bytes[2*i+1] = v & 255; }
+  }
+  const bpp = ch * (bitDepth >> 3);
+  const filtered = await refilterRowsAsync(bytes, w, h, bpp,
+    f => tick && tick("optimizing filters " + Math.round(f * 100) + "%"));
+  const idat = await deflateZ(filtered);
+  const ihdr = new Uint8Array(13);
+  const dv = new DataView(ihdr.buffer);
+  dv.setUint32(0, w); dv.setUint32(4, h);
+  ihdr[8] = bitDepth; ihdr[9] = colorType;
+  const parts = [SIG, pngChunk("IHDR", ihdr)];
+  for (const c of ancillary) parts.push(pngChunk(c.type, c.data));
+  parts.push(pngChunk("IDAT", idat), pngChunk("IEND", new Uint8Array(0)));
+  return new Blob(parts, { type: "image/png" });
+}
+
+/* ---------- verified lossless squeeze (byte-level) ---------- */
+async function squeezeBlob(blob){
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const chunks = parsePng(bytes);
+  if (!chunks) return null;
+  const ihdr = chunks.find(c => c.type === "IHDR");
+  if (!ihdr || ihdr.data.length < 13) return null;
+  const idv = new DataView(ihdr.data.buffer, ihdr.data.byteOffset, 13);
+  const w = idv.getUint32(0), h = idv.getUint32(4);
+  const bpp = ({0:1,2:3,3:1,4:2,6:4}[ihdr.data[9]] || 0) * (ihdr.data[8] >> 3);
+  if (!bpp || ihdr.data[12] !== 0) return null;
+  const idats = chunks.filter(c => c.type === "IDAT");
+  if (!idats.length) return null;
+  const filtered = await inflate(concatBytes(idats.map(c => c.data)));
+  if (filtered.length !== h * (w * bpp + 1)) return null;
+  const rawPix = unfilterRows(filtered, w, h, bpp);
+  const refiltered = await refilterRowsAsync(rawPix, w, h, bpp, null);
+  const newIdat = await deflateZ(refiltered);
+  if (!newIdat.length) return null;
+  const parts = [SIG];
+  let placed = false;
+  for (const ch of chunks){
+    if (ch.type === "IDAT"){
+      if (!placed){ parts.push(pngChunk("IDAT", newIdat)); placed = true; }
+      continue;
+    }
+    parts.push(pngChunk(ch.type, ch.data));
+  }
+  return new Blob(parts, { type: "image/png" });
+}
+async function pixelData(blob){
+  const url = URL.createObjectURL(blob);
+  try {
+    const im = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error("decode failed"));
+      i.src = url;
+    });
+    const c = document.createElement("canvas");
+    c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(im, 0, 0);
+    return ctx.getImageData(0, 0, c.width, c.height).data;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function verifyIdentical(a, b){
+  try {
+    const A = await pixelData(a), B = await pixelData(b);
+    if (A.length !== B.length) return false;
+    for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
+    return true;
+  } catch { return false; }
+}
+async function squeezeVerified(blob, tick){
+  try {
+    if (typeof CompressionStream === "undefined") return blob;
+    tick && tick("lossless squeeze");
+    const sq = await squeezeBlob(blob);
+    if (sq && sq.size < blob.size){
+      tick && tick("verifying");
+      if (await verifyIdentical(blob, sq)) return sq;
+      if (!warnedVerify){
+        warnedVerify = true;
+        toast("One file failed verification — kept its uncompressed version", false);
+      }
+    }
+  } catch { /* keep original */ }
+  return blob;
+}
+
+/* ---------- canvas fallback (only for exotic files) ---------- */
+let sourceCanvas = null, srcImageData = null;
+function getSourceCanvas(){
+  if (!sourceCanvas){
+    sourceCanvas = document.createElement("canvas");
+    sourceCanvas.width = img.naturalWidth;
+    sourceCanvas.height = img.naturalHeight;
+    sourceCanvas.getContext("2d").drawImage(img, 0, 0);
+  }
+  return sourceCanvas;
+}
+function getSourceData(){
+  if (!srcImageData){
+    const sc = getSourceCanvas();
+    srcImageData = sc.getContext("2d", { willReadFrequently: true })
+                     .getImageData(0, 0, sc.width, sc.height);
+  }
+  return srcImageData;
+}
+function steppedCanvas(W, H){
+  const mk = (w, h, s) => {
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const x = c.getContext("2d");
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.drawImage(s, 0, 0, s.width, s.height, 0, 0, w, h);
+    return c;
+  };
+  let cur = getSourceCanvas();
+  while (cur.width >= W * 2 && cur.height >= H * 2)
+    cur = mk(Math.max(W, cur.width >> 1), Math.max(H, cur.height >> 1), cur);
+  return mk(W, H, cur);
+}
+
+/* ---------- the full output builder ---------- */
+async function buildOutput(W, H, tick){
+  /* same size → the original file, byte for byte */
+  if (img.naturalWidth === W && img.naturalHeight === H){
+    tick && tick("same size · byte-preserved");
+    return srcBlob;
+  }
+  if (!pureSrc){
+    tick && tick("reading original bytes");
+    const bytes = new Uint8Array(await srcBlob.arrayBuffer());
+    pureSrc = await decodePngPure(bytes);
+  }
+  const ps = pureSrc;
+  if (ps.ok && W * ps.h * ps.ch * 2 + W * H * ps.ch * 2 <= 600e6){
+    const maxVal = (1 << ps.outBitDepth) - 1;
+    const samples = await resampleGeneric(ps.samples, ps.w, ps.h, ps.ch, W, H, maxVal, tick);
+    let blob = await encodeResized(samples, W, H, ps.ch, ps.outBitDepth, ps.outColorType, ps.ancillary, tick);
+    return squeezeVerified(blob, tick);
+  }
+  /* fallback: exotic format or huge memory footprint → browser engine */
+  if (ps.ok === false && lastFallbackReason !== ps.reason){
+    lastFallbackReason = ps.reason;
+    toast("This PNG uses " + ps.reason + " — using the browser engine for it", false);
+  }
+  const sc = getSourceCanvas();
+  const px = await resampleGeneric(getSourceData().data, sc.width, sc.height, 4, W, H, 255, tick);
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  c.getContext("2d").putImageData(new ImageData(px, W, H), 0, 0);
+  const plain = await new Promise(res => c.toBlob(res, "image/png"));
+  return squeezeVerified(plain, tick);
+}
+
+/* =====================================================================
+   STEP 1 — Compress button: squeeze the SOURCE, before resizing
+   ===================================================================== */
+async function swapSourceBlob(newBlob){
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  srcBlob = newBlob;
+  objectUrl = URL.createObjectURL(newBlob);
+  const im = new Image();
+  await new Promise((res, rej) => {
+    im.onload = res; im.onerror = () => rej(new Error("decode failed"));
+    im.src = objectUrl;
+  });
+  img = im;
+  pureSrc = null; sourceCanvas = null; srcImageData = null;
+  $("preview").src = objectUrl;
+}
+function markCompressed(){
+  const cb = $("compressBtn");
+  cb.classList.add("done");
+  cb.disabled = true;
+  cb.textContent = "Compressed ✔";
+}
+ $("compressBtn").onclick = async () => {
+  if (!srcBlob) return toast("Load a PNG first 🙂", false);
+  if (typeof CompressionStream === "undefined" || typeof DecompressionStream === "undefined")
+    return toast("This browser can't squeeze — try Chrome, Edge or Firefox", false);
+  const btn = $("compressBtn");
+  btn.disabled = true;
+  $("cWrap").classList.remove("hidden");
+  const setP = (p, msg) => { $("cFill").style.width = p + "%"; $("cText").textContent = msg; };
+  try {
+    const origSize = srcBlob.size;
+    setP(5, "Reading source…");
+    const bytes = new Uint8Array(await srcBlob.arrayBuffer());
+    setP(10, "Squeezing…");
+    const chunks = parsePng(bytes);
+    let outBytes = null;
+    if (chunks){
+      const ihdr = chunks.find(c => c.type === "IHDR");
+      if (ihdr && ihdr.data.length >= 13){
+        const idv = new DataView(ihdr.data.buffer, ihdr.data.byteOffset, 13);
+        const w = idv.getUint32(0), h = idv.getUint32(4);
+        const bpp = ({0:1,2:3,3:1,4:2,6:4}[ihdr.data[9]] || 0) * (ihdr.data[8] >> 3);
+        if (bpp && ihdr.data[12] === 0){
+          const idats = chunks.filter(c => c.type === "IDAT");
+          if (idats.length){
+            const filtered = await inflate(concatBytes(idats.map(c => c.data)));
+            if (filtered.length === h * (w * bpp + 1)){
+              const rawPix = unfilterRows(filtered, w, h, bpp);
+              setP(35, "Squeezing…");
+              const refiltered = await refilterRowsAsync(rawPix, w, h, bpp, f => setP(35 + f * 45, "Squeezing…"));
+              const newIdat = await deflateZ(refiltered);
+              if (newIdat.length){
+                const parts = [SIG];
+                let placed = false;
+                for (const ch of chunks){
+                  if (ch.type === "IDAT"){
+                    if (!placed){ parts.push(pngChunk("IDAT", newIdat)); placed = true; }
+                    continue;
+                  }
+                  parts.push(pngChunk(ch.type, ch.data));
+                }
+                outBytes = concatBytes(parts);
+              }
+            }
+          }
+        }
+      }
+    }
+    if (!outBytes){
+      setP(100, "Not squeezable");
+      toast("This PNG uses an exotic variant — left untouched (nothing lost)", false);
+      markCompressed();
+      return;
+    }
+    setP(88, "Verifying pixel-perfect…");
+    const newBlob = new Blob([outBytes], { type: "image/png" });
+    if (!(await verifyIdentical(srcBlob, newBlob))){
+      setP(100, "Verification failed");
+      toast("Verification failed — kept the original (zero risk, always)", false);
+      markCompressed();
+      return;
+    }
+    if (newBlob.size >= origSize){
+      setP(100, "Already optimal");
+      toast("This image is already fully squeezed — kept as-is", false);
+      markCompressed();
+      return;
+    }
+    setP(96, "Swapping in compressed source…");
+    await swapSourceBlob(newBlob);
+    const pct = Math.round((1 - newBlob.size / origSize) * 100);
+    $("fileInfo").textContent =
+      `${img.naturalWidth} × ${img.naturalHeight} px · ${formatBytes(newBlob.size)} · squeezed −${pct}%`;
+    setP(100, `Done — ${formatBytes(origSize)} → ${formatBytes(newBlob.size)} (−${pct}%)`);
+    markCompressed();
+    toast(`✔ Source squeezed ${formatBytes(origSize)} → ${formatBytes(newBlob.size)} — now resize as usual`);
+  } catch (e) {
+    setP(0, "");
+    $("cWrap").classList.add("hidden");
+    toast("Compress failed: " + e.message, false);
+    btn.disabled = false;
+  }
+};
+
+/* ---------- STEP 2 — resize all selected sizes ---------- */
+async function resizeAll(selected){
+  blobs = [];
+  const results = $("results"), pWrap = $("progressWrap");
+  results.innerHTML = ""; results.classList.remove("hidden"); pWrap.classList.remove("hidden");
+  const rows = selected.map(([w,h])=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${prefixVal()}-${w}x${h}.png</span><span class="muted">queued…</span>`;
+    results.appendChild(li);
+    return li;
+  });
+  for (let i = 0; i < selected.length; i++){
+    const [w,h] = selected[i];
+    const label = `Resizing ${w}×${h} (${i+1}/${selected.length})`;
+    $("progressText").textContent = label + "…";
+    $("barFill").style.width = (i / selected.length * 100) + "%";
+    await new Promise(r => setTimeout(r, 16));
+    const blob = await buildOutput(w, h, msg => {
+      $("progressText").textContent = `${label} · ${msg}…`;
+    });
+    if (!blob) throw new Error("Failed on " + w + "×" + h);
+    blobs.push({ name: `${prefixVal()}-${w}x${h}.png`, blob });
+    rows[i].lastElementChild.textContent = formatBytes(blob.size) + " ✓";
+    rows[i].lastElementChild.classList.add("ok");
+  }
+  $("barFill").style.width = "100%";
+  $("progressText").textContent = `Done — ${selected.length} images ready.`;
+}
+
+/* ---------- export: ZIP only (pure JS, no libraries) ---------- */
 function dosDateTime(d){
   return {
     time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
@@ -326,11 +902,11 @@ function dosDateTime(d){
   };
 }
 function makeZip(files){
-  const enc = new TextEncoder(), { time, date } = dosDateTime(new Date());
+  const { time, date } = dosDateTime(new Date());
   const chunks = [], central = [];
   let offset = 0;
   for (const f of files){
-    const name = enc.encode(f.name), crc = crc32(f.data);
+    const name = TE.encode(f.name), crc = crc32(f.data);
     const lh = new DataView(new ArrayBuffer(30));
     lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true);
     lh.setUint16(6, 0, true);  lh.setUint16(8, 0, true);
