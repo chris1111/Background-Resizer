@@ -1,351 +1,406 @@
-<!doctype html>
-<!-- Created with GFM2HTML: https://github.com/rvagg/gfm2html -->
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="created-with" content="https://github.com/rvagg/gfm2html">
-    <body style="background-color:#2d313a;">
-    <style type="text/css">
-/* most of normalize.css */
-article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block;}[hidden],template{display:none;}html{font-family:sans-serif;/*1*/-ms-text-size-adjust:100%;/*2*/-webkit-text-size-adjust:100%;/*2*/}body{margin:0;}a{background:transparent;}a:focus{outline:thindotted;}a:active,a:hover{outline:0;}h1{font-size:2em;margin:0.67em0;}abbr[title]{border-bottom:1pxdotted;}b,strong{font-weight:bold;}dfn{font-style:italic;}hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0;}mark{background:#ff0;color:#000;}code,kbd,pre,samp{font-family:monospace,serif;font-size:1em;}pre{white-space:pre-wrap;}q{quotes:"\201C""\201D""\2018""\2019";}small{font-size:80%;}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline;}sup{top:-0.5em;}sub{bottom:-0.25em;}img{border:0;}svg:not(:root){overflow:hidden;}table{border-collapse:collapse;border-spacing:0;}
-
-html {
-  font: 14px 'Helvetica Neue', Helvetica, arial, freesans, clean, sans-serif;
-}
-
-.container {
-  line-height: 1.6;
-  color: #333;
-  background: #eee;
-  border-radius: 3px;
-  padding: 3px;
-  width: 790px;
-  margin: 10px auto;
-}
-
-.body-content {
-  background-color: #fff;
-  border: 1px solid #CACACA;
-  padding: 30px;
-}
-
-.body-content > *:first-child {
-  margin-top: 0 !important;
-}
-
-a, a:visited {
-  color: #4183c4;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-p, blockquote, ul, ol, dl, table, pre {
-  margin: 15px 0;
-}
-
-  .markdown-body h1
-, .markdown-body h2
-, .markdown-body h3
-, .markdown-body h4
-, .markdown-body h5
-, .markdown-body h6 {
-  margin: 20px 0 10px;
-  padding: 0;
-  font-weight: bold;
-}
-
-h1 {
-  font-size: 2.5em;
-  color: #000;
-  border-bottom: 1px solid #ddd;
-}
-
-h2 {
-  font-size: 2em;
-  border-bottom: 1px solid #eee;
-  color: #000;
-}
-
-img {
-  max-width: 100%;
-}
-
-hr {
-  background: transparent url("/img/hr.png") repeat-x 0 0;
-  border: 0 none;
-  color: #ccc;
-  height: 4px;
-  padding: 0;
-}
-
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-tr:nth-child(2n) {
-  background-color: #f8f8f8;
-}
-
-.markdown-body tr {
-  border-top: 1px solid #ccc;
-  background-color: #fff;
-}
-
-td, th {
-  border: 1px solid #ccc;
-  padding: 6px 13px;
-}
-
-th {
-  font-weight: bold;
-}
-
-blockquote {
-  border-left: 4px solid #ddd;
-  padding: 0 15px;
-  color: #777;
-}
-
-blockquote > :last-child, blockquote > :first-child {
-  margin-bottom: 0px;
-}
-
-pre, code {
-  font-size: 13px;
-  font-family: 'UbuntuMono', monospace;
-  white-space: nowrap;
-  margin: 0 2px;
-  padding: 0px 5px;
-  border: 1px solid #eaeaea;
-  background-color: #f8f8f8;
-  border-radius: 3px;
-}
-
-pre > code {
-  white-space: pre;
-}
-
-pre {
-  overflow-x: auto;
-  white-space: pre;
-  padding: 10px;
-  line-height: 150%;
-  background-color: #f8f8f8;
-  border-color: #ccc;
-}
-
-pre code, pre tt {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background-color: transparent;
-  border: none;
-}
-
-  .highlight .c
-, .highlight .cm
-, .highlight .cp
-, .highlight .c1 {
-    color:#999988;
-    font-style:italic;
-}
-
-.highlight .err {
-  color:#a61717;
-  background-color:#e3d2d2
-}
-
-  .highlight .o
-, .highlight .gs
-, .highlight .kc
-, .highlight .kd
-, .highlight .kn
-, .highlight .kp
-, .highlight .kr {
-    font-weight:bold
-}
-
-.highlight .cs {
-  color:#999999;
-  font-weight:bold;
-  font-style:italic
-}
-
-.highlight .gd {
-  color:#000000;
-  background-color:#ffdddd
-}
-
-.highlight .gd .x {
-  color:#000000;
-  background-color:#ffaaaa
-}
-
-.highlight .ge {
-  font-style:italic
-}
-
-  .highlight .gr
-, .highlight .gt {
-    color:#aa0000
-}
-
-  .highlight .gh
-, .highlight .bp {
-    color:#999999
-}
-
-.highlight .gi {
-  color:#000000;
-  background-color:#ddffdd
-}
-
-.highlight .gi .x {
-  color:#000000;
-  background-color:#aaffaa
-}
-
-.highlight .go {
-  color:#888888
-}
-
-  .highlight .gp
-, .highlight .nn {
-    color:#555555
-}
-
-
-.highlight .gu {
-  color:#800080;
-  font-weight:bold
-}
-
-
-.highlight .kt {
-  color:#445588;
-  font-weight:bold
-}
-
-  .highlight .m
-, .highlight .mf
-, .highlight .mh
-, .highlight .mi
-, .highlight .mo
-, .highlight .il {
-    color:#009999
-}
-
-  .highlight .s
-, .highlight .sb
-, .highlight .sc
-, .highlight .sd
-, .highlight .s2
-, .highlight .se
-, .highlight .sh
-, .highlight .si
-, .highlight .sx
-, .highlight .s1 {
-    color:#d14
-}
-
-.highlight .n {
-  color:#333333
-}
-
-  .highlight .na
-, .highlight .no
-, .highlight .nv
-, .highlight .vc
-, .highlight .vg
-, .highlight .vi
-, .highlight .nb {
-    color:#0086B3
-}
-
-.highlight .nc {
-  color:#445588;
-  font-weight:bold
-}
-
-.highlight .ni {
-  color:#800080
-}
-
-  .highlight .ne
-, .highlight .nf {
-    color:#990000;
-    font-weight:bold
-}
-
-.highlight .nt {
-  color:#000080
-}
-
-.highlight .ow {
-  font-weight:bold
-}
-
-.highlight .w {
-  color:#bbbbbb
-}
-
-.highlight .sr {
-  color:#009926
-}
-
-.highlight .ss {
-  color:#990073
-}
-
-.highlight .gc {
-  color:#999;
-  background-color:#EAF2F5
-}
-
-@media print {
-  .container {
-    background: transparent;
-    border-radius: 0;
-    padding: 0;
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Background Resizer</title>
+<style>
+  :root{
+    --bg:#0a0c10; --border:rgba(255,255,255,.09); --text:#e7eaf0; --muted:#8b93a7;
+    --a1:#8b5cf6; --a2:#22d3ee;
   }
-
-  .body-content {
-    border: none;
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:32px 16px;
   }
-}
+  .glow{position:fixed;border-radius:50%;filter:blur(130px);opacity:.22;pointer-events:none;z-index:0}
+  .glow-1{width:55vw;height:55vw;background:var(--a1);top:-25%;left:-15%}
+  .glow-2{width:45vw;height:45vw;background:var(--a2);bottom:-25%;right:-15%}
+  .card{
+    position:relative;z-index:1;width:100%;max-width:720px;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+    border:1px solid var(--border); border-radius:20px; padding:28px;
+    backdrop-filter:blur(20px); box-shadow:0 24px 70px rgba(0,0,0,.55);
+  }
+  header{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+  .logo{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--a1),#6366f1 55%,var(--a2));box-shadow:0 6px 18px rgba(139,92,246,.4)}
+  h1{font-size:1.25rem;letter-spacing:-.01em}
+  header p{color:var(--muted);font-size:.86rem;margin-top:3px}
+  code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:.82em}
+  .dropzone{
+    border:1.5px dashed rgba(255,255,255,.2); border-radius:14px; padding:34px 20px;
+    text-align:center; cursor:pointer; transition:.2s; background:rgba(255,255,255,.02); color:var(--muted);
+  }
+  .dropzone:hover,.dropzone.drag{border-color:var(--a1);background:rgba(139,92,246,.09);color:var(--text)}
+  .dropzone svg{margin-bottom:8px}
+  .dropzone .hint{display:block;margin-top:6px;font-size:.75rem;color:var(--muted)}
+  .file-card{display:flex;gap:14px;align-items:center;padding:12px;border:1px solid var(--border);
+    border-radius:14px;background:rgba(255,255,255,.03)}
+  .file-card img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border);flex:none}
+  .meta{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .meta strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .muted{color:var(--muted)} .small{font-size:.78rem}
+  .icon-btn{margin-left:auto;width:32px;height:32px;border-radius:50%;flex:none;border:1px solid var(--border);
+    background:transparent;color:var(--muted);cursor:pointer;font-size:1rem;transition:.15s}
+  .icon-btn:hover{color:#f87171;border-color:#f87171}
+  .controls{margin:16px 0}
+  .controls label{display:flex;flex-direction:column;gap:6px;font-size:.72rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+  input[type=text]{
+    background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;
+    color:var(--text);padding:10px 12px;font:inherit;font-size:.88rem;outline:none;width:100%;
+  }
+  input[type=text]:focus{border-color:var(--a1)}
+  .note{margin:-8px 0 14px;font-size:.75rem;color:var(--muted)}
+  .sizes-head{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 8px}
+  .sizes-head .small:first-child{color:var(--muted);letter-spacing:.07em;font-weight:600}
+  .link{background:none;border:none;color:var(--a2);cursor:pointer;font:inherit;font-size:.78rem;padding:0}
+  .link:hover{text-decoration:underline}
+  .sizes{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:8px;margin-bottom:18px}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip span{display:flex;flex-direction:column;gap:2px;padding:9px 11px;border:1px solid var(--border);
+    border-radius:10px;cursor:pointer;transition:.15s;background:rgba(255,255,255,.02)}
+  .chip span:hover{border-color:rgba(255,255,255,.25)}
+  .chip input:checked+span{border-color:var(--a1);background:rgba(139,92,246,.16);
+    box-shadow:0 0 0 1px var(--a1) inset}
+  .chip .dim{font-weight:600;font-size:.84rem}
+  .chip .tag{font-size:.68rem;color:var(--muted)}
+  .primary{
+    width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;
+    background:linear-gradient(135deg,var(--a1),#6366f1 50%,var(--a2));
+    color:#fff;font:inherit;font-weight:600;font-size:.95rem;transition:.2s;
+  }
+  .primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 26px rgba(139,92,246,.4)}
+  .primary:disabled{opacity:.35;cursor:not-allowed}
+  .progress{margin-top:16px}
+  .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px}
+  #barFill{height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .25s;border-radius:99px}
+  .results{list-style:none;margin-top:14px;max-height:230px;overflow:auto;border:1px solid var(--border);
+    border-radius:12px;padding:6px 12px}
+  .results li{display:flex;justify-content:space-between;gap:12px;padding:7px 2px;
+    border-bottom:1px solid rgba(255,255,255,.05);font-size:.83rem}
+  .results li:last-child{border-bottom:none}
+  .results .ok{color:#34d399}
+  .export-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .secondary{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;
+    border-radius:12px;cursor:pointer;font:inherit;font-size:.88rem;font-weight:600;transition:.15s;white-space:nowrap;
+    background:rgba(139,92,246,.15);border:1px solid var(--a1);color:#c4b5fd}
+  .secondary:hover{background:rgba(139,92,246,.28)}
+  .secondary:disabled{opacity:.45;cursor:wait}
+  .support{margin-top:14px;font-size:.76rem;color:var(--muted);text-align:center}
+  .hidden{display:none!important}
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(90px);
+    background:#191c24;border:1px solid var(--border);padding:12px 20px;border-radius:12px;
+    font-size:.88rem;opacity:0;transition:.3s;z-index:10;max-width:90vw;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .toast.show{transform:translateX(-50%);opacity:1}
+  .toast.error{border-color:#f87171;color:#fca5a5}
 </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="body-content"><h1 id="background-resizer">Background-Resizer</h1>
-<p>Update 25 Aug 2024 Change Applications bundle</p>
-<h3 id="a-tool-to-resize-background-images-for-use-with-opencanopygenerator">A tool to resize Background images for use with <a href="https://github.com/chris1111/OpenCanopy-Generator">OpenCanopyGenerator</a></h3>
-<ul>
-<li>Create by: chris1111</li>
-<li>Created from <a href="https://latenightsw.com/">Script Debugger</a></li>
-<li>Credit: Apple Image Processing System (sips)</li>
-<p>view-on-github: 👓 ➤ <a href="https://github.com/chris1111/Background-Resizer">Background-Resizer</a></p>
-</li>
-<li><p>Only PNG images are accept the Background must be in 1920x1080, only one image can be dropped</p>
-</li>
-</ul>
-<h3 id="the-images-will-be-resize-to-">The images will be resize to:</h3>
-<ul>
-<li>3840x2160.png-7680x2880.png-5120x2880.png-2560x1600.png-3840x2400.png-3360x2100.png-3200x2400.png-3200x1800.png-2880x2160.png-2880x1800.png-2732x1536.png-2880x1800.png-2048x1536.png </li>
-<li>🔍 ➤ in the same directory as your original image in folder with the same name Ex: Background.resize.</li>
-</ul>
-<p>Download ➤ <a href="https://github.com/chris1111/Background-Resizer/raw/main/Install%20Background-Resizer.zip">Install Background-Resizer</a></p>
-<h3 id="view-video-install-background-resizer-">View Video Install Background-Resizer ⬇︎</h3>
-<p><a href="https://youtu.be/FHRLZtXXIFk"><img src="https://github.com/user-attachments/assets/68f65560-03ae-4dfe-908f-554e30e2906b" alt="Modular Image Creation"></a></p>
-</div>
+</head>
+<body>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<main class="card">
+  <header>
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/></svg>
     </div>
-  </body>
+    <div>
+      <h1>Background Resizer</h1>
+      <p>One PNG in → 12 wallpaper sizes out, packed in an <code>Output</code> ZIP</p>
+    </div>
+  </header>
+
+  <div id="dropzone" class="dropzone">
+    <input type="file" id="fileInput" accept="image/png" hidden>
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <p><strong>Drop a PNG here</strong> or click to browse</p>
+    <span class="hint">PNG only · everything runs locally, nothing is uploaded</span>
+  </div>
+
+  <div id="fileCard" class="file-card hidden">
+    <img id="preview" alt="preview">
+    <div class="meta">
+      <strong id="fileName"></strong>
+      <span id="fileInfo" class="muted small"></span>
+    </div>
+    <button id="clearBtn" class="icon-btn" title="Remove image">✕</button>
+  </div>
+
+  <div class="controls">
+    <label>Filename prefix
+      <input type="text" id="prefix" value="Background" spellcheck="false">
+    </label>
+  </div>
+  <p class="note">Each output is stretched to the exact pixel dimensions — identical to <code>sips -z.</p>
+
+  <div class="sizes-head">
+    <span class="small">OUTPUT SIZES</span>
+    <span><button class="link" id="allBtn">All</button> · <button class="link" id="noneBtn">None</button></span>
+  </div>
+  <div class="sizes" id="sizesGrid"></div>
+
+  <button id="goBtn" class="primary" disabled>Resize images</button>
+
+  <div id="progressWrap" class="progress hidden">
+    <div class="bar"><div id="barFill"></div></div>
+    <span id="progressText" class="muted small"></span>
+  </div>
+
+  <ul id="results" class="results hidden"></ul>
+
+  <div id="exportRow" class="export-row hidden">
+    <button id="zipBtn" class="secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Output.zip
+    </button>
+  </div>
+
+  <p class="support">Copyright © 2026 chris1111 , All Rights Reserved.</p>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+/* ---------- the exact 12 presets from your sips script ---------- */
+const SIZES = [
+  [3840,2160,"4K UHD · 16:9"],
+  [7680,2880,"8K Super Ultrawide"],
+  [5120,2880,"5K"],
+  [2560,1600,"WQXGA · 16:10"],
+  [3840,2400,"4K · 16:10"],
+  [3360,2100,"WQHD+ · 16:10"],
+  [3200,2400,"QXGA · 4:3"],
+  [3200,1800,"WQHD+ · 16:9"],
+  [2880,2160,"3K · 4:3"],
+  [2732,1536,'iPad Pro 12.9"'],
+  [2880,1800,'MacBook Pro 15"'],
+  [2048,1536,"iPad Retina · 4:3"],
+];
+
+const $ = id => document.getElementById(id);
+let img = null, objectUrl = null, blobs = [];
+
+/* ---------- build size chips ---------- */
+SIZES.forEach(([w,h,tag])=>{
+  const label = document.createElement("label");
+  label.className = "chip";
+  label.innerHTML = `<input type="checkbox" checked data-w="${w}" data-h="${h}">
+    <span><span class="dim">${w} × ${h}</span><span class="tag">${tag}</span></span>`;
+  $("sizesGrid").appendChild(label);
+});
+
+/* ---------- helpers ---------- */
+function formatBytes(n){
+  if (n < 1024) return n + " B";
+  const u = ["KB","MB","GB"]; let i = -1;
+  do { n /= 1024; i++; } while (n >= 1024 && i < u.length - 1);
+  return n.toFixed(n >= 100 ? 0 : 1) + " " + u[i];
+}
+let toastTimer;
+function toast(msg, ok = true){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.toggle("error", !ok);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 3400);
+}
+const prefixVal = () => ($("prefix").value.trim() || "Background");
+const getSelected = () =>
+  [...document.querySelectorAll(".chip input:checked")].map(cb => [+cb.dataset.w, +cb.dataset.h]);
+
+function downloadBlob(blob, name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 8000);
+}
+
+/* ---------- file loading ---------- */
+function handleFile(file){
+  if (!file) return;
+  if (!(file.type === "image/png" || /\.png$/i.test(file.name)))
+    return toast("PNG files only 🙂", false);
+  const url = URL.createObjectURL(file);
+  const im = new Image();
+  im.onload = () => {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = url; img = im;
+    $("preview").src = url;
+    $("fileName").textContent = file.name;
+    $("fileInfo").textContent = `${im.naturalWidth} × ${im.naturalHeight} px · ${formatBytes(file.size)}`;
+    $("dropzone").classList.add("hidden");
+    $("fileCard").classList.remove("hidden");
+    $("goBtn").disabled = false;
+    $("results").classList.add("hidden"); $("results").innerHTML = "";
+    $("exportRow").classList.add("hidden");
+    $("progressWrap").classList.add("hidden");
+  };
+  im.onerror = () => { URL.revokeObjectURL(url); toast("Could not read that image", false); };
+  im.src = url;
+}
+function resetAll(){
+  if (objectUrl) URL.revokeObjectURL(objectUrl);
+  objectUrl = null; img = null;
+  $("preview").removeAttribute("src");
+  $("fileCard").classList.add("hidden");
+  $("dropzone").classList.remove("hidden");
+  $("goBtn").disabled = true;
+  $("exportRow").classList.add("hidden");
+  $("results").classList.add("hidden"); $("results").innerHTML = "";
+  $("progressWrap").classList.add("hidden");
+}
+
+/* ---------- resizing (canvas) — exact stretch, sips -z behaviour ---------- */
+function renderSize(W, H){
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, W, H);
+  return new Promise(res => c.toBlob(res, "image/png"));
+}
+
+async function resizeAll(selected){
+  blobs = [];
+  const results = $("results"), pWrap = $("progressWrap");
+  results.innerHTML = ""; results.classList.remove("hidden"); pWrap.classList.remove("hidden");
+  const rows = selected.map(([w,h])=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${prefixVal()}-${w}x${h}.png</span><span class="muted">queued…</span>`;
+    results.appendChild(li);
+    return li;
+  });
+  for (let i = 0; i < selected.length; i++){
+    const [w,h] = selected[i];
+    $("progressText").textContent = `Resizing ${w}×${h} (${i+1}/${selected.length})…`;
+    $("barFill").style.width = (i / selected.length * 100) + "%";
+    await new Promise(r => setTimeout(r, 16));            // keep UI responsive
+    const blob = await renderSize(w, h);
+    if (!blob) throw new Error("Canvas failed on " + w + "×" + h);
+    blobs.push({ name: `${prefixVal()}-${w}x${h}.png`, blob });
+    rows[i].lastElementChild.textContent = formatBytes(blob.size) + " ✓";
+    rows[i].lastElementChild.classList.add("ok");
+  }
+  $("barFill").style.width = "100%";
+  $("progressText").textContent = `Done — ${selected.length} images ready.`;
+}
+
+/* ---------- export: ZIP only (pure JS, no libraries) ---------- */
+const crcTable = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++){
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(u8){
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = crcTable[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function dosDateTime(d){
+  return {
+    time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+    date: (((d.getFullYear() - 1980) & 0x7f) << 9) | (((d.getMonth() + 1) & 0xf) << 5) | (d.getDate() & 0x1f)
+  };
+}
+function makeZip(files){
+  const enc = new TextEncoder(), { time, date } = dosDateTime(new Date());
+  const chunks = [], central = [];
+  let offset = 0;
+  for (const f of files){
+    const name = enc.encode(f.name), crc = crc32(f.data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true);
+    lh.setUint16(6, 0, true);  lh.setUint16(8, 0, true);
+    lh.setUint16(10, time, true); lh.setUint16(12, date, true);
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, f.data.length, true); lh.setUint32(22, f.data.length, true);
+    lh.setUint16(26, name.length, true);  lh.setUint16(28, 0, true);
+    chunks.push(new Uint8Array(lh.buffer), name, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true);
+    ch.setUint16(4, 20, true);  ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0, true);   ch.setUint16(10, 0, true);
+    ch.setUint16(12, time, true); ch.setUint16(14, date, true);
+    ch.setUint32(16, crc, true);
+    ch.setUint32(20, f.data.length, true); ch.setUint32(24, f.data.length, true);
+    ch.setUint16(28, name.length, true);
+    ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + f.data.length;
+  }
+  let centralSize = 0;
+  central.forEach(c => centralSize += c.length);
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0, 0x06054b50, true);
+  eo.setUint16(8, files.length, true); eo.setUint16(10, files.length, true);
+  eo.setUint32(12, centralSize, true); eo.setUint32(16, offset, true);
+  return new Blob([...chunks, ...central, new Uint8Array(eo.buffer)], { type: "application/zip" });
+}
+ $("zipBtn").onclick = async () => {
+  if (!blobs.length) return;
+  $("zipBtn").disabled = true;
+  $("zipBtn").textContent = "Packing…";
+  try {
+    const files = [];
+    for (const b of blobs)
+      files.push({ name: "Output/" + b.name, data: new Uint8Array(await b.blob.arrayBuffer()) });
+    downloadBlob(makeZip(files), "Output.zip");
+    toast("Output.zip downloaded — extract it into Downloads to get the Output folder");
+  } finally {
+    $("zipBtn").disabled = false;
+    $("zipBtn").textContent = "Download Output.zip";
+  }
+};
+
+/* ---------- events ---------- */
+const dz = $("dropzone");
+dz.addEventListener("click", () => $("fileInput").click());
+ $("fileInput").addEventListener("change", e => handleFile(e.target.files[0]));
+["dragenter","dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
+dz.addEventListener("drop", e => handleFile(e.dataTransfer.files[0]));
+ $("clearBtn").onclick = resetAll;
+ $("allBtn").onclick  = () => document.querySelectorAll(".chip input").forEach(cb => cb.checked = true);
+ $("noneBtn").onclick = () => document.querySelectorAll(".chip input").forEach(cb => cb.checked = false);
+
+ $("goBtn").onclick = async () => {
+  const selected = getSelected();
+  if (!selected.length) return toast("Select at least one output size", false);
+  $("goBtn").disabled = true;
+  $("exportRow").classList.add("hidden");
+  try {
+    await resizeAll(selected);
+    $("exportRow").classList.remove("hidden");
+    $("goBtn").textContent = "Resize again";
+    toast("✔ Resize complete — download Output.zip to save");
+  } catch (e) {
+    toast("Resize failed: " + e.message, false);
+  }
+  $("goBtn").disabled = false;
+};
+</script>
+</body>
 </html>
