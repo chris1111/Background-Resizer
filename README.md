@@ -3,9 +3,7 @@
 # Background-Resizer
 Update 04 Sept 2026 Create a Web App page
 
-
 ### A tool (Web Page) to resize Background images for use with [OpenCanopyGenerator](https://github.com/chris1111/OpenCanopy-Generator)
-
 ## Start using ➢ [Background-Resizer](https://chris1111.github.io/Background-Resizer/)
 
 - Only PNG images are accept the Background must be in 1920x1080, only one image can be dropped
